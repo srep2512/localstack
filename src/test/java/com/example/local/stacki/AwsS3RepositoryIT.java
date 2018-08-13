@@ -2,6 +2,7 @@ package com.example.local.stacki;
 
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -13,14 +14,21 @@ import cloud.localstack.docker.LocalstackDockerTestRunner;
 import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 
 
-@LocalstackDockerProperties(randomizePorts = true, services = { "s3" })
+@LocalstackDockerProperties( services = { "s3" })
 @RunWith(LocalstackDockerTestRunner.class)
 public class AwsS3RepositoryIT {
 
+	static AmazonS3 clientS3;
+	
+	@BeforeClass
+	public static void init() {
+		clientS3 = DockerTestUtils.getClientS3();	
+		clientS3.createBucket("mybucket");
+	}
+	
 	@Test
 	public void testS3Access() {
-		AmazonS3 aws = DockerTestUtils.getClientS3();		
-		aws.createBucket("mybucket");
-		List<Bucket> buckets = aws.listBuckets();
+		List<Bucket> buckets = clientS3.listBuckets();
+		System.out.println("Fertig");
 	}
 }
